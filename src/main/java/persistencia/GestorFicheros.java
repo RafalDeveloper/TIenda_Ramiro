@@ -37,14 +37,10 @@ import java.util.List;
  *          FICHEROS
  *
  *
- * En esta fase estamos trabajando con dos formatos:
+ * En esta fase estamos trabajando con cuatro formatos:
  *
  *      TXT
  *      CSV
- *
- *
- * Posteriormente incorporaremos:
- *
  *      XML
  *      JSON
  *
@@ -54,10 +50,372 @@ import java.util.List;
  * Para TXT y CSV estamos realizando nosotros manualmente
  * la transformación entre objetos Java y texto.
  *
- * Más adelante, con XML y JSON, utilizaremos Jackson para
- * realizar gran parte de ese trabajo automáticamente.
+ * Con XML y JSON utilizaremos Jackson para realizar gran
+ * parte de ese trabajo automáticamente.
+ *
+ *
+ * =================================================================
+ * EXPERIMENTOS PROPUESTOS PARA HACER CON LOS ALUMNOS
+ * =================================================================
+ *
+ * Antes de modificar nada:
+ *
+ * 1. Crear varios clientes desde el programa.
+ *
+ * 2. Exportarlos a XML.
+ *
+ * 3. Exportarlos también a JSON.
+ *
+ * 4. Abrir ambos ficheros con IntelliJ o un editor de texto.
+ *
+ * 5. Comparar cómo se representa la misma información en ambos
+ *    formatos.
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 1 - MODIFICAR UN VALOR
+ * -----------------------------------------------------------------
+ *
+ * XML:
+ *
+ *      <nombre>Ana</nombre>
+ *
+ * cambiar por:
+ *
+ *      <nombre>María</nombre>
+ *
+ *
+ * JSON:
+ *
+ *      "nombre" : "Ana"
+ *
+ * cambiar por:
+ *
+ *      "nombre" : "María"
+ *
+ *
+ * Volver a importar.
+ *
+ * PREGUNTA:
+ *
+ * ¿Aparece María en nuestra aplicación?
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 2 - ELIMINAR UNA PROPIEDAD
+ * -----------------------------------------------------------------
+ *
+ * Eliminar, por ejemplo, el teléfono.
+ *
+ * XML:
+ *
+ *      <telefono>600123456</telefono>
+ *
+ *
+ * JSON:
+ *
+ *      "telefono" : "600123456"
+ *
+ *
+ * Volver a importar.
+ *
+ * Observar qué valor recibe Java.
+ *
+ * PISTA:
+ *
+ * Si una propiedad de tipo referencia como String no aparece,
+ * normalmente su valor quedará a null si Jackson puede construir
+ * correctamente el objeto.
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 3 - AÑADIR UNA PROPIEDAD DESCONOCIDA
+ * -----------------------------------------------------------------
+ *
+ * Añadir manualmente:
+ *
+ * XML:
+ *
+ *      <ciudad>Madrid</ciudad>
+ *
+ *
+ * JSON:
+ *
+ *      "ciudad" : "Madrid"
+ *
+ *
+ * Pero nuestra clase Cliente NO tiene:
+ *
+ *      private String ciudad;
+ *
+ *
+ * PREGUNTA:
+ *
+ * ¿Qué hará Jackson?
+ *
+ * ¿Ignorará el dato?
+ * ¿Dará un error?
+ *
+ * Es interesante probarlo en XML y JSON y leer el mensaje
+ * de la excepción.
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 4 - ROMPER LA SINTAXIS
+ * -----------------------------------------------------------------
+ *
+ * XML:
+ *
+ * eliminar una etiqueta de cierre:
+ *
+ *      <nombre>Ana
+ *
+ *
+ * JSON:
+ *
+ * eliminar una coma:
+ *
+ *      {
+ *          "id" : 1
+ *          "nombre" : "Ana"
+ *      }
+ *
+ *
+ * Intentar importar.
+ *
+ * OBJETIVO:
+ *
+ * Comprobar que XML y JSON tienen una sintaxis que debe respetarse.
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 5 - CAMBIAR EL TIPO DE UN DATO
+ * -----------------------------------------------------------------
+ *
+ * Si id es un int, cambiar:
+ *
+ *      "id" : 1
+ *
+ * por:
+ *
+ *      "id" : "ABC"
+ *
+ *
+ * O en XML:
+ *
+ *      <id>ABC</id>
+ *
+ *
+ * Intentar importar.
+ *
+ * PREGUNTA:
+ *
+ * ¿Puede Jackson convertir "ABC" en un int?
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 6 - AÑADIR UN CLIENTE MANUALMENTE
+ * -----------------------------------------------------------------
+ *
+ * Copiar uno de los clientes directamente dentro del fichero,
+ * modificar sus datos e intentar importarlo.
+ *
+ * OBJETIVO:
+ *
+ * Entender que el fichero es independiente del programa:
+ *
+ *      fichero
+ *         ↓
+ *      Jackson
+ *         ↓
+ *      objetos Java
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 7 - FICHERO VACÍO
+ * -----------------------------------------------------------------
+ *
+ * Vaciar completamente un fichero JSON o XML e intentar importarlo.
+ *
+ * Observar qué excepción produce Jackson.
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 8 - JSON: CAMBIAR [] POR {}
+ * -----------------------------------------------------------------
+ *
+ * Nuestro JSON contiene una LISTA:
+ *
+ *      [
+ *          {...},
+ *          {...}
+ *      ]
+ *
+ * Cambiarlo por:
+ *
+ *      {
+ *          ...
+ *      }
+ *
+ * y volver a importar.
+ *
+ * PREGUNTA:
+ *
+ * Si hemos pedido a Jackson:
+ *
+ *      List<Cliente>
+ *
+ * ¿puede deserializar un único objeto como si fuera una lista?
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 9 - XML: MODIFICAR EL WRAPPER
+ * -----------------------------------------------------------------
+ *
+ * En XML utilizamos ClientesXml como clase contenedora.
+ *
+ * Modificar manualmente la estructura del documento y observar
+ * qué ocurre cuando deja de corresponderse con la estructura
+ * que Jackson espera convertir a ClientesXml.
+ *
+ *
+ * -----------------------------------------------------------------
+ * EXPERIMENTO 10 - CARACTERES ESPECIALES
+ * -----------------------------------------------------------------
+ *
+ * Probar nombres como:
+ *
+ *      José Álvarez
+ *      María & Ana
+ *      <Pepe>
+ *      "Juan"
+ *
+ * Exportarlos a XML y JSON.
+ *
+ * Observar cómo Jackson representa o escapa automáticamente
+ * determinados caracteres.
+ *
+ * Comparar este comportamiento con todo el código que nosotros
+ * tuvimos que escribir manualmente para CSV.
+ *
+ *
+ * =================================================================
+ * IDEA FUNDAMENTAL
+ * =================================================================
+ *
+ * TXT / CSV:
+ *
+ *      nosotros hacemos gran parte de la conversión.
+ *
+ *
+ * XML / JSON:
+ *
+ *      objeto Java
+ *           ↓
+ *        Jackson
+ *           ↓
+ *      XML / JSON
+ *
+ *
+ * y al importar:
+ *
+ *      XML / JSON
+ *           ↓
+ *        Jackson
+ *           ↓
+ *      objeto Java
+ *
  */
 public class GestorFicheros {
+
+
+    /*
+     * =============================================================
+     * MAPPERS DE JACKSON
+     * =============================================================
+     *
+     * Un "mapper" es el objeto encargado de realizar el mapeo:
+     *
+     *      objeto Java <----> formato externo
+     *
+     *
+     * En nuestro caso utilizamos dos:
+     *
+     *      XmlMapper
+     *          para XML
+     *
+     *      ObjectMapper
+     *          para JSON
+     *
+     *
+     * Ambos pertenecen a Jackson.
+     */
+
+
+    /*
+     * XML_MAPPER
+     * -------------------------------------------------------------
+     *
+     * XmlMapper es la variante de Jackson especializada en XML.
+     *
+     * Lo declaramos static porque todos los métodos de esta clase
+     * son static y queremos compartir una única instancia.
+     *
+     * Lo declaramos final porque no queremos sustituir este mapper
+     * por otro durante la ejecución.
+     *
+     *
+     * SerializationFeature.INDENT_OUTPUT
+     *
+     * hace que Jackson escriba un XML formateado y legible.
+     *
+     * Sin indentación podríamos obtener algo parecido a:
+     *
+     * <ClientesXml><clientes><id>1</id>...</clientes></ClientesXml>
+     *
+     * Con indentación será más parecido a:
+     *
+     * <ClientesXml>
+     *     <clientes>
+     *         <id>1</id>
+     *         ...
+     *     </clientes>
+     * </ClientesXml>
+     *
+     * La indentación NO cambia los datos.
+     *
+     * Solamente mejora la presentación del fichero.
+     */
+    private static final XmlMapper XML_MAPPER =
+            (XmlMapper) new XmlMapper()
+                    .enable(SerializationFeature.INDENT_OUTPUT);
+
+
+    /*
+     * MAPPER
+     * -------------------------------------------------------------
+     *
+     * ObjectMapper es el mapper principal de Jackson para JSON.
+     *
+     * También activamos INDENT_OUTPUT para obtener JSON legible.
+     *
+     * En lugar de:
+     *
+     * [{"id":1,"nombre":"Ana"}]
+     *
+     * obtendremos algo parecido a:
+     *
+     * [
+     *   {
+     *      "id" : 1,
+     *      "nombre" : "Ana"
+     *   }
+     * ]
+     */
+    private static final ObjectMapper MAPPER =
+            new ObjectMapper()
+                    .enable(SerializationFeature.INDENT_OUTPUT);
+
 
 
     // ============================================================
@@ -384,7 +742,6 @@ public class GestorFicheros {
      */
 
 
-
     /**
      * ============================================================
      * MÉTODO csv()
@@ -587,213 +944,68 @@ public class GestorFicheros {
         /*
          * Lista donde almacenaremos los campos
          * que vayamos encontrando.
-         *
-         * Por ejemplo, finalmente podríamos tener:
-         *
-         *      campos[0] -> "3"
-         *      campos[1] -> "Pérez, \"Juan\""
-         *      campos[2] -> "Ourense"
-         *      campos[3] -> "Pepa"
          */
         List<String> campos = new ArrayList<>();
 
 
         /*
-         * StringBuilder
-         * ========================================================
-         *
-         * Necesitamos construir cada campo poco a poco.
-         *
-         * Como vamos a recorrer caracteres individualmente,
-         * utilizamos StringBuilder.
-         *
-         *
-         * Por ejemplo:
-         *
-         * leemos:
-         *
-         *      P
-         *      é
-         *      r
-         *      e
-         *      z
-         *
-         * y hacemos:
-         *
-         *      actual.append('P');
-         *      actual.append('é');
-         *      ...
-         *
-         * hasta obtener:
-         *
-         *      "Pérez"
-         *
-         *
-         * StringBuilder es especialmente apropiado cuando
-         * construimos texto mediante muchas modificaciones.
+         * StringBuilder nos permite ir construyendo
+         * el campo carácter a carácter.
          */
         StringBuilder actual = new StringBuilder();
 
 
         /*
-         * Esta variable es fundamental.
-         *
-         * Nos dice si actualmente estamos:
-         *
-         *      FUERA de un campo entrecomillado
-         *
-         * o:
-         *
-         *      DENTRO de un campo entrecomillado.
-         *
-         *
-         * false:
-         *
-         *      estamos fuera
-         *
-         * true:
-         *
-         *      estamos dentro
-         *
-         *
-         * Inicialmente estamos fuera.
+         * false -> estamos fuera de comillas.
+         * true  -> estamos dentro de comillas.
          */
         boolean entreComillas = false;
 
 
         /*
-         * Ejemplo que queremos interpretar:
-         *
-         *      3,"Pérez, ""Juan""",Ourense,Pepa
-         *
-         *
-         * Recorreremos:
-         *
-         *      3
-         *      ,
-         *      "
-         *      P
-         *      é
-         *      r
-         *      e
-         *      z
-         *      ,
-         *      ...
-         *
-         * carácter por carácter.
+         * Recorremos toda la línea carácter a carácter.
          */
         for (int i = 0; i < linea.length(); i++) {
 
 
             /*
-             * charAt(i) devuelve el carácter que ocupa
-             * la posición i.
-             *
-             * Si:
-             *
-             *      linea = "Ana"
-             *
-             * tendremos:
-             *
-             *      charAt(0) -> 'A'
-             *      charAt(1) -> 'n'
-             *      charAt(2) -> 'a'
+             * Obtenemos el carácter situado en la posición i.
              */
             char c = linea.charAt(i);
 
 
-
             /*
-             * ====================================================
-             * CASO 1: ENCONTRAMOS UNA COMILLA
-             * ====================================================
+             * CASO 1:
+             *
+             * Encontramos una comilla.
              */
             if (c == '"') {
 
 
                 /*
-                 * Tenemos que distinguir dos situaciones.
-                 *
-                 *
-                 * SITUACIÓN A:
-                 *
-                 * Estamos dentro de un campo entrecomillado
-                 * Y la siguiente posición también contiene ".
-                 *
-                 *
-                 * Es decir:
+                 * Si estamos dentro de comillas y encontramos:
                  *
                  *      ""
                  *
-                 *
-                 * Eso representa una comilla REAL que forma
-                 * parte del contenido.
-                 *
-                 *
-                 * Ejemplo CSV:
-                 *
-                 *      "Pérez, ""Juan"""
-                 *
-                 *
-                 * Las comillas dobles alrededor de Juan
-                 * representan:
-                 *
-                 *      Pérez, "Juan"
+                 * significa que el contenido contiene
+                 * una comilla real.
                  */
                 if (
                         entreComillas
-
-                                /*
-                                 * Comprobamos primero que exista
-                                 * una posición siguiente.
-                                 *
-                                 * Esto evita intentar acceder
-                                 * fuera del String.
-                                 */
                                 && i + 1 < linea.length()
-
-                                /*
-                                 * Comprobamos si el siguiente
-                                 * carácter también es ".
-                                 */
                                 && linea.charAt(i + 1) == '"'
                 ) {
 
 
                     /*
-                     * Hemos encontrado:
-                     *
-                     *      ""
-                     *
-                     * dentro de un campo.
-                     *
-                     * Eso representa UNA comilla real.
-                     *
-                     * Añadimos:
-                     *
-                     *      "
-                     *
-                     * al contenido actual.
+                     * Añadimos una única comilla al resultado.
                      */
                     actual.append('"');
 
 
                     /*
-                     * MUY IMPORTANTE:
-                     *
-                     * Hemos consumido DOS caracteres:
-                     *
-                     *      ""
-                     *
-                     * pero queremos interpretarlos como uno:
-                     *
-                     *      "
-                     *
-                     *
-                     * Por eso avanzamos manualmente i.
-                     *
-                     * Así evitamos procesar la segunda
-                     * comilla otra vez.
+                     * Saltamos la segunda comilla porque ya
+                     * hemos procesado las dos.
                      */
                     i++;
 
@@ -802,42 +1014,19 @@ public class GestorFicheros {
 
 
                     /*
-                     * Si no estamos ante "", entonces esta
+                     * Si no es una comilla escapada, esta
                      * comilla abre o cierra un campo.
-                     *
-                     *
-                     * Utilizamos:
-                     *
-                     *      !entreComillas
-                     *
-                     * para invertir el boolean.
-                     *
-                     *
-                     * false -> true
-                     *
-                     * significa:
-                     *
-                     *      acabamos de ENTRAR en comillas.
-                     *
-                     *
-                     * true -> false
-                     *
-                     * significa:
-                     *
-                     *      acabamos de SALIR de comillas.
                      */
                     entreComillas = !entreComillas;
                 }
 
 
-
                 /*
-                 * ====================================================
-                 * CASO 2: ENCONTRAMOS UNA COMA
-                 * ====================================================
+                 * CASO 2:
                  *
-                 * Una coma solamente funciona como separador
-                 * cuando estamos FUERA de las comillas.
+                 * Encontramos una coma FUERA de comillas.
+                 *
+                 * Esa coma sí funciona como separador.
                  */
             } else if (
                     c == ',' && !entreComillas
@@ -845,38 +1034,14 @@ public class GestorFicheros {
 
 
                 /*
-                 * Hemos terminado un campo.
-                 *
-                 * Todo lo que hemos acumulado en:
-                 *
-                 *      actual
-                 *
-                 * pertenece a ese campo.
-                 *
-                 * Lo convertimos a String y lo añadimos.
+                 * Guardamos el campo que acabamos de terminar.
                  */
                 campos.add(actual.toString());
 
 
                 /*
-                 * Ahora necesitamos empezar a construir
-                 * el siguiente campo.
-                 *
-                 * Podríamos crear otro StringBuilder,
-                 * pero reutilizamos el mismo.
-                 *
-                 * setLength(0)
-                 *
-                 * lo vacía.
-                 *
-                 *
-                 * Antes:
-                 *
-                 *      actual = "Pérez, Juan"
-                 *
-                 * Después:
-                 *
-                 *      actual = ""
+                 * Vaciamos StringBuilder para empezar
+                 * a construir el siguiente campo.
                  */
                 actual.setLength(0);
 
@@ -885,14 +1050,11 @@ public class GestorFicheros {
 
 
                 /*
-                 * =================================================
-                 * CASO 3: CARÁCTER NORMAL
-                 * =================================================
+                 * CASO 3:
                  *
-                 * Si no es una comilla especial ni una coma
-                 * separadora, forma parte del contenido.
+                 * Es un carácter normal.
                  *
-                 * Lo añadimos al campo actual.
+                 * Lo incorporamos al campo actual.
                  */
                 actual.append(c);
             }
@@ -900,40 +1062,10 @@ public class GestorFicheros {
 
 
         /*
-         * ========================================================
-         * ¿POR QUÉ HAY QUE AÑADIR UN CAMPO AL FINAL?
-         * ========================================================
+         * El último campo no termina con coma.
          *
-         * Nosotros añadimos un campo cuando encontramos ",".
-         *
-         * Pero el último campo NO termina con coma.
-         *
-         *
-         * Ejemplo:
-         *
-         *      1,Ana,Madrid
-         *
-         *
-         * Encontramos:
-         *
-         *      1,
-         *
-         * añadimos "1".
-         *
-         * Después:
-         *
-         *      Ana,
-         *
-         * añadimos "Ana".
-         *
-         * Finalmente leemos:
-         *
-         *      Madrid
-         *
-         * pero no aparece otra coma.
-         *
-         * Por eso, al terminar el for, tenemos que añadir
-         * manualmente el contenido que queda.
+         * Por eso debemos añadirlo manualmente
+         * después de terminar el bucle.
          */
         campos.add(actual.toString());
 
@@ -971,17 +1103,7 @@ public class GestorFicheros {
 
 
             /*
-             * ====================================================
-             * CABECERA
-             * ====================================================
-             *
-             * A diferencia del TXT anterior, nuestro CSV tendrá
-             * una primera línea indicando el significado
-             * de cada columna.
-             *
-             *      id,nombre,email,telefono
-             *
-             * Esto hace que el fichero sea más descriptivo.
+             * Escribimos la cabecera del CSV.
              */
             bw.write("id,nombre,email,telefono");
 
@@ -997,24 +1119,8 @@ public class GestorFicheros {
                 /*
                  * Construimos el registro CSV.
                  *
-                 * Fíjate en una diferencia importante.
-                 *
-                 * Para id:
-                 *
-                 *      c.getId()
-                 *
-                 * no utilizamos csv() porque es un número.
-                 *
-                 *
-                 * Para los String sí utilizamos:
-                 *
-                 *      csv(...)
-                 *
-                 * porque podrían contener:
-                 *
-                 *      ,
-                 *      "
-                 *      salto de línea
+                 * Aplicamos csv() a los String porque podrían
+                 * contener comas, comillas o saltos de línea.
                  */
                 bw.write(
                         c.getId()
@@ -1028,7 +1134,7 @@ public class GestorFicheros {
 
 
                 /*
-                 * Un Cliente = un registro CSV.
+                 * Cada Cliente ocupa un registro.
                  */
                 bw.newLine();
             }
@@ -1041,16 +1147,6 @@ public class GestorFicheros {
      * ============================================================
      * IMPORTAR CLIENTES DESDE CSV
      * ============================================================
-     *
-     * Realiza el proceso contrario:
-     *
-     *      fichero CSV
-     *          ↓
-     *      parseCsv()
-     *          ↓
-     *      List<String>
-     *          ↓
-     *      Cliente
      */
     public static List<Cliente> importarClientesCsv(
             Path ruta
@@ -1058,14 +1154,13 @@ public class GestorFicheros {
 
 
         /*
-         * Lista donde guardaremos los clientes
-         * reconstruidos.
+         * Lista donde almacenaremos los objetos reconstruidos.
          */
         List<Cliente> resultado = new ArrayList<>();
 
 
         /*
-         * Abrimos el fichero para lectura.
+         * Abrimos el fichero CSV.
          */
         try (BufferedReader br =
                      Files.newBufferedReader(
@@ -1075,75 +1170,30 @@ public class GestorFicheros {
 
 
             /*
-             * ====================================================
-             * LEEMOS LA CABECERA
-             * ====================================================
-             *
-             * Nuestro fichero empieza con:
+             * Leemos una vez para consumir la cabecera:
              *
              *      id,nombre,email,telefono
-             *
-             * No queremos convertir esa línea en Cliente.
-             *
-             * Por eso hacemos una primera lectura.
              */
             String linea = br.readLine();
 
 
             /*
-             * IMPORTANTE:
-             *
-             * El contenido leído anteriormente no se utiliza.
-             *
-             * El objetivo simplemente es avanzar el lector
-             * una línea.
-             *
-             *
-             * Después de:
-             *
-             *      br.readLine()
-             *
-             * el BufferedReader queda preparado para leer
-             * el primer Cliente.
-             */
-
-
-            /*
-             * Recorremos el resto de líneas.
+             * A partir de aquí procesamos los registros reales.
              */
             while ((linea = br.readLine()) != null) {
 
 
                 /*
-                 * NO hacemos:
-                 *
-                 *      linea.split(",")
-                 *
-                 * porque ya sabemos que eso fallaría con:
-                 *
-                 *      "Pérez, Juan"
-                 *
-                 *
-                 * Utilizamos nuestro parser.
+                 * Nuestro parser convierte la línea en campos.
                  */
                 List<String> c =
                         parseCsv(linea);
 
 
                 /*
-                 * Un Cliente necesita cuatro campos:
-                 *
-                 *      id
-                 *      nombre
-                 *      email
-                 *      telefono
+                 * Un Cliente necesita exactamente cuatro campos.
                  */
                 if (c.size() != 4) {
-
-                    /*
-                     * Si el registro no tiene la estructura
-                     * esperada, lo ignoramos.
-                     */
                     continue;
                 }
 
@@ -1152,16 +1202,14 @@ public class GestorFicheros {
 
 
                     /*
-                     * c.get(0) contiene un String.
-                     *
-                     * Tenemos que convertirlo a int.
+                     * Convertimos el primer campo de String a int.
                      */
                     int id =
                             Integer.parseInt(c.get(0));
 
 
                     /*
-                     * Los demás campos ya son String.
+                     * Recuperamos los campos de texto.
                      */
                     String nombre =
                             c.get(1);
@@ -1174,7 +1222,7 @@ public class GestorFicheros {
 
 
                     /*
-                     * Reconstruimos el Cliente.
+                     * Reconstruimos el objeto.
                      */
                     Cliente cliente =
                             new Cliente(
@@ -1186,24 +1234,17 @@ public class GestorFicheros {
 
 
                     /*
-                     * Añadimos el cliente.
+                     * Lo incorporamos al resultado.
                      */
                     resultado.add(cliente);
-
-
-
 
 
                 } catch (NumberFormatException e) {
 
 
                     /*
-                     * Si el id no puede convertirse en int:
-                     *
-                     *      ABC,Ana,email,telefono
-                     *
-                     * descartamos el registro e informamos
-                     * del problema.
+                     * Si el id no es numérico no podemos
+                     * reconstruir correctamente el Cliente.
                      */
                     System.err.println(
                             "Cliente erróneo: " + linea
@@ -1214,10 +1255,525 @@ public class GestorFicheros {
 
 
         /*
-         * Devolvemos todos los clientes importados.
+         * Devolvemos todos los clientes reconstruidos.
          */
         return resultado;
     }
 
 
+
+    // ============================================================
+    // XML
+    // ============================================================
+
+
+    /**
+     * ============================================================
+     * EXPORTAR CLIENTES A XML
+     * ============================================================
+     *
+     * A diferencia de TXT y CSV, aquí NO vamos a construir
+     * manualmente el texto XML.
+     *
+     * No hacemos cosas como:
+     *
+     *      bw.write("<cliente>");
+     *      bw.write("<nombre>" + nombre + "</nombre>");
+     *
+     * Dejamos ese trabajo a Jackson.
+     *
+     *
+     * El recorrido será:
+     *
+     *      List<Cliente>
+     *           ↓
+     *      ClientesXml
+     *           ↓
+     *       XmlMapper
+     *           ↓
+     *       fichero XML
+     *
+     *
+     * ClientesXml es una clase contenedora o WRAPPER.
+     *
+     * Su función es envolver:
+     *
+     *      List<Cliente>
+     *
+     * dentro de un objeto Java que Jackson puede utilizar
+     * como estructura raíz del documento.
+     */
+    public static void exportarClientesXml(
+            Path ruta,
+            List<Cliente> clientes
+    ) throws IOException {
+
+
+        /*
+         * Primero construimos el wrapper.
+         *
+         * Si clientes contiene:
+         *
+         *      Ana
+         *      Luis
+         *      Marta
+         *
+         * tendremos conceptualmente:
+         *
+         *      ClientesXml
+         *           |
+         *           +-- clientes
+         *                  |
+         *                  +-- Ana
+         *                  +-- Luis
+         *                  +-- Marta
+         */
+        ClientesXml contenedor =
+                new ClientesXml(clientes);
+
+
+        /*
+         * ruta es un Path.
+         *
+         * Jackson puede escribir directamente sobre un File,
+         * por lo que:
+         *
+         *      ruta.toFile()
+         *
+         * convierte la representación Path en File.
+         *
+         *
+         * writeValue recibe:
+         *
+         *      1. DÓNDE escribir.
+         *      2. QUÉ objeto serializar.
+         *
+         *
+         * Jackson inspeccionará ClientesXml y sus propiedades
+         * utilizando los getters.
+         */
+        XML_MAPPER.writeValue(
+                ruta.toFile(),
+                contenedor
+        );
+    }
+
+
+
+    /**
+     * ============================================================
+     * IMPORTAR CLIENTES DESDE XML
+     * ============================================================
+     *
+     * Realizamos el proceso inverso:
+     *
+     *      fichero XML
+     *           ↓
+     *       XmlMapper
+     *           ↓
+     *      ClientesXml
+     *           ↓
+     *      List<Cliente>
+     *
+     *
+     * Ahora hablamos de DESERIALIZACIÓN.
+     */
+    public static List<Cliente> importarClientesXml(
+            Path ruta
+    ) throws IOException {
+
+
+        /*
+         * readValue necesita saber:
+         *
+         *      1. qué fichero debe leer;
+         *      2. qué tipo de objeto Java queremos obtener.
+         *
+         *
+         * Primer argumento:
+         *
+         *      ruta.toFile()
+         *
+         * indica el origen de los datos.
+         *
+         *
+         * Segundo argumento:
+         *
+         *      ClientesXml.class
+         *
+         * indica el TIPO de objeto que Jackson debe construir.
+         *
+         *
+         * IMPORTANTE:
+         *
+         * ClientesXml.class NO es un objeto ClientesXml.
+         *
+         * Es un objeto de tipo:
+         *
+         *      Class<ClientesXml>
+         *
+         * que representa la clase ClientesXml.
+         *
+         *
+         * Podemos pensar:
+         *
+         *      ClientesXml
+         *          -> nombre del tipo
+         *
+         *      new ClientesXml()
+         *          -> objeto de ese tipo
+         *
+         *      ClientesXml.class
+         *          -> objeto que representa ese tipo
+         *
+         *
+         * Jackson necesita esta información porque todavía
+         * NO existe el objeto: precisamente queremos que
+         * Jackson lo construya a partir del XML.
+         */
+        ClientesXml contenedor =
+                XML_MAPPER.readValue(
+                        ruta.toFile(),
+                        ClientesXml.class
+                );
+
+
+        /*
+         * Ahora ya tenemos:
+         *
+         *      ClientesXml
+         *           |
+         *           +-- List<Cliente>
+         *
+         *
+         * Queremos devolver solamente la lista.
+         *
+         *
+         * Esta expresión utiliza el operador ternario:
+         *
+         *      condición ? valorSiTrue : valorSiFalse
+         *
+         *
+         * Si:
+         *
+         *      contenedor.getClientes() == null
+         *
+         * devolvemos una lista vacía.
+         *
+         * En caso contrario devolvemos la lista obtenida
+         * del XML.
+         *
+         *
+         * Esto evita devolver null al resto de la aplicación.
+         */
+        return contenedor.getClientes() == null
+                ? new ArrayList<>()
+                : contenedor.getClientes();
+    }
+
+
+
+    // ============================================================
+    // WRAPPER / CLASE CONTENEDORA PARA XML
+    // ============================================================
+
+
+    /**
+     * ============================================================
+     * ClientesXml
+     * ============================================================
+     *
+     * Esta clase funciona como WRAPPER o clase contenedora.
+     *
+     *
+     * Sin wrapper tendríamos:
+     *
+     *      List<Cliente>
+     *
+     *
+     * Con wrapper tenemos:
+     *
+     *      ClientesXml
+     *           |
+     *           +-- List<Cliente>
+     *
+     *
+     * Es decir, estamos "envolviendo" la lista dentro
+     * de otro objeto.
+     *
+     *
+     * IMPORTANTE:
+     *
+     * No debemos confundir este significado de wrapper
+     * con las wrapper classes de Java:
+     *
+     *      int     -> Integer
+     *      double  -> Double
+     *      boolean -> Boolean
+     *
+     * Aquí hablamos simplemente de una clase utilizada
+     * como CONTENEDOR.
+     */
+    public static class ClientesXml {
+
+
+        /*
+         * Esta es la información que realmente queremos guardar.
+         *
+         * Inicializamos la lista para evitar que inicialmente
+         * tenga valor null.
+         */
+        private List<Cliente> clientes =
+                new ArrayList<>();
+
+
+        /**
+         * Constructor vacío.
+         *
+         * Es especialmente importante durante la
+         * deserialización.
+         *
+         * Jackson puede necesitar crear primero:
+         *
+         *      new ClientesXml()
+         *
+         * y posteriormente introducir los datos mediante
+         * los setters.
+         */
+        public ClientesXml() {
+
+        }
+
+
+        /**
+         * Constructor con parámetros.
+         *
+         * Este constructor nos resulta especialmente cómodo
+         * al EXPORTAR.
+         *
+         * Podemos hacer:
+         *
+         *      new ClientesXml(clientes)
+         *
+         * y envolver inmediatamente nuestra lista.
+         */
+        public ClientesXml(List<Cliente> clientes) {
+
+            /*
+             * this.clientes:
+             *      atributo del objeto.
+             *
+             * clientes:
+             *      parámetro recibido.
+             */
+            this.clientes = clientes;
+        }
+
+
+        /**
+         * Getter.
+         *
+         * Permite obtener la lista almacenada en el wrapper.
+         *
+         * Jackson también puede utilizar los getters para
+         * descubrir propiedades durante la serialización.
+         */
+        public List<Cliente> getClientes() {
+
+            return clientes;
+        }
+
+
+        /**
+         * Setter.
+         *
+         * Permite sustituir la lista de clientes.
+         *
+         * Es especialmente relevante durante la
+         * deserialización, cuando Jackson reconstruye
+         * el objeto a partir del XML.
+         */
+        public void setClientes(
+                List<Cliente> clientes
+        ) {
+
+            this.clientes = clientes;
+        }
+    }
+
+
+
+    // ============================================================
+    // JSON
+    // ============================================================
+
+
+    /**
+     * ============================================================
+     * EXPORTAR CLIENTES A JSON
+     * ============================================================
+     *
+     * En JSON podemos serializar directamente:
+     *
+     *      List<Cliente>
+     *
+     * sin utilizar nuestro wrapper ClientesXml.
+     *
+     *
+     * Si tenemos:
+     *
+     *      clientes
+     *          |
+     *          +-- Ana
+     *          +-- Luis
+     *
+     * Jackson puede producir directamente:
+     *
+     *      [
+     *          {
+     *              "id" : 1,
+     *              "nombre" : "Ana",
+     *              ...
+     *          },
+     *          {
+     *              "id" : 2,
+     *              "nombre" : "Luis",
+     *              ...
+     *          }
+     *      ]
+     *
+     *
+     * Los corchetes:
+     *
+     *      [ ]
+     *
+     * representan un ARRAY JSON.
+     */
+    public static void exportarClientesJson(
+            Path ruta,
+            List<Cliente> clientes
+    ) throws IOException {
+
+
+        /*
+         * writeValue recibe:
+         *
+         *      1. fichero destino;
+         *      2. objeto que queremos serializar.
+         *
+         *
+         * En este caso el objeto es directamente:
+         *
+         *      clientes
+         *
+         * cuyo tipo es:
+         *
+         *      List<Cliente>
+         *
+         *
+         * Jackson recorrerá la lista y después inspeccionará
+         * cada Cliente para obtener sus propiedades.
+         */
+        MAPPER.writeValue(
+                ruta.toFile(),
+                clientes
+        );
+    }
+
+
+
+    /**
+     * ============================================================
+     * IMPORTAR CLIENTES DESDE JSON
+     * ============================================================
+     *
+     * El proceso es:
+     *
+     *      JSON
+     *       ↓
+     *    Jackson
+     *       ↓
+     *   List<Cliente>
+     *
+     *
+     * Aquí aparece una diferencia muy interesante respecto
+     * al XML anterior.
+     */
+    public static List<Cliente> importarClientesJson(
+            Path ruta
+    ) throws IOException {
+
+
+        /*
+         * Podríamos pensar inicialmente en escribir:
+         *
+         *      List<Cliente>.class
+         *
+         * pero eso NO existe en Java.
+         *
+         *
+         * El problema está relacionado con los genéricos.
+         *
+         * En tiempo de ejecución necesitamos comunicar
+         * a Jackson que queremos exactamente:
+         *
+         *      una List
+         *
+         * cuyos elementos sean:
+         *
+         *      Cliente
+         *
+         *
+         * Para conservar esa información utilizamos:
+         *
+         *      TypeReference<List<Cliente>>
+         *
+         *
+         * Es decir, TypeReference proporciona a Jackson
+         * información más detallada que simplemente:
+         *
+         *      List.class
+         *
+         *
+         * Porque List.class solamente indicaría:
+         *
+         *      "quiero una lista"
+         *
+         * pero no:
+         *
+         *      "quiero una lista de Cliente"
+         */
+        return MAPPER.readValue(
+
+                /*
+                 * Primer argumento:
+                 *
+                 * fichero JSON que vamos a leer.
+                 */
+                ruta.toFile(),
+
+
+                /*
+                 * Segundo argumento:
+                 *
+                 * descripción completa del tipo esperado:
+                 *
+                 *      List<Cliente>
+                 *
+                 *
+                 * Las llaves:
+                 *
+                 *      {}
+                 *
+                 * crean una clase anónima derivada de
+                 * TypeReference.
+                 *
+                 * Esta técnica permite conservar la información
+                 * del tipo genérico para que Jackson pueda
+                 * reconstruir correctamente cada Cliente.
+                 */
+                new TypeReference<List<Cliente>>() {
+                }
+        );
+    }
 }

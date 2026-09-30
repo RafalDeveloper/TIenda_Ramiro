@@ -248,11 +248,11 @@ public class VentanaPrincipal extends JFrame {
 
                 }
                 case "JSON" -> {
-                    System.out.println("JSON todavía no implementado");
+                    GestorFicheros.exportarClientesJson(ruta, servicio.getClientes());
 
                 }
                 case "XML" -> {
-                    System.out.println("XML todavía no implementado");
+                    GestorFicheros.exportarClientesXml(ruta, servicio.getClientes());
 
                 }
             }
@@ -272,14 +272,10 @@ public class VentanaPrincipal extends JFrame {
                 case "CSV" ->
                     GestorFicheros.importarClientesCsv(ruta);
 
-                case "JSON" -> {
-                    System.out.println("JSON todavía no implementado");
-                    yield new ArrayList<>();
-                }
-                case "XML" -> {
-                    System.out.println("XML todavía no implementado");
-                    yield new ArrayList<>();
-                }
+                case "JSON" -> GestorFicheros.importarClientesJson(ruta);
+
+                case "XML" -> GestorFicheros.importarClientesXml(ruta);
+
                 default -> GestorFicheros.importarClientesTxt(ruta);
 
             };
